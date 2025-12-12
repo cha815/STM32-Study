@@ -101,7 +101,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
 ------------------------------------------------------------------------
 
-### （3）HAL_UART_Receive_DMA（DMA 接收）
+### （6）HAL_UART_Receive_DMA（DMA 接收）
 
 ``` c
 
@@ -115,7 +115,7 @@ HAL_UART_Receive_DMA(&huart4, rx_buf, RX_BUF_SIZE);
 
 ------------------------------------------------------------------------
 
-### （4）HAL_UARTEx_ReceiveToIdle_DMA (DMA+IDLE)
+### （7）HAL_UARTEx_ReceiveToIdle_DMA (DMA+IDLE)
 
 ``` c
 
@@ -236,7 +236,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t size)
 
 ------------------------------------------------------------------------
 
-## ? 必学函数总结
+##  必学函数总结
 
 ### **发送（常用程度排序）**
 
