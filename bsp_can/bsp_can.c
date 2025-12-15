@@ -26,7 +26,7 @@ void can_filter_init(void){
 
 
 //·¢ËÍº¯Êı
-voiCAN_cmd(int16_t encoder, int16_t speed, int16_t current, uint8_t temperature)//-32768-32768//10000
+void CAN_cmd(int16_t encoder, int16_t speed, int16_t current, uint8_t temperature)//-32768-32768//10000
 {
     uint32_t send_mail_box;
     tx_message.StdId = 0x201;
