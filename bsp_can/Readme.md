@@ -22,7 +22,7 @@ CAN 初始化
 
 ## 二、CAN 初始化相关函数
 
-### 1?? `HAL_CAN_Init`
+### 1?  `HAL_CAN_Init`
 
 ```c
 HAL_CAN_Init(&hcan);
@@ -41,7 +41,7 @@ HAL_CAN_Init(&hcan);
 
 ---
 
-### 2?? `HAL_CAN_Start`
+### 2?  `HAL_CAN_Start`
 
 ```c
 HAL_CAN_Start(&hcan);
@@ -56,7 +56,7 @@ HAL_CAN_Start(&hcan);
 
 ## 三、CAN 过滤器配置函数
 
-### 3?? `HAL_CAN_ConfigFilter`
+### 3?  `HAL_CAN_ConfigFilter`
 
 ```c
 HAL_CAN_ConfigFilter(&hcan, &canFilter);
@@ -80,7 +80,7 @@ canFilter.FilterMaskIdHigh = 0x0000;
 
 ## 四、CAN 发送相关函数
 
-### 4?? `HAL_CAN_AddTxMessage`
+### 4?  `HAL_CAN_AddTxMessage`
 
 ```c
 HAL_CAN_AddTxMessage(&hcan, &txHeader, txData, &mailbox);
@@ -106,7 +106,7 @@ CAN_TxHeaderTypeDef txHeader;
 
 ---
 
-### 5?? `HAL_CAN_IsTxMessagePending`
+### 5?  `HAL_CAN_IsTxMessagePending`
 
 ```c
 HAL_CAN_IsTxMessagePending(&hcan, mailbox);
@@ -120,7 +120,7 @@ HAL_CAN_IsTxMessagePending(&hcan, mailbox);
 
 ## 五、CAN 接收相关函数
 
-### 6?? `HAL_CAN_GetRxMessage`
+### 6 `HAL_CAN_GetRxMessage`
 
 ```c
 HAL_CAN_GetRxMessage(&hcan, CAN_RX_FIFO0, &rxHeader, rxData);
@@ -147,7 +147,7 @@ CAN_RxHeaderTypeDef rxHeader;
 
 ## 六、CAN 中断与回调函数 ?
 
-### 7?? `HAL_CAN_ActivateNotification`
+### 7?  `HAL_CAN_ActivateNotification`
 
 ```c
 HAL_CAN_ActivateNotification(&hcan, CAN_IT_RX_FIFO0_MSG_PENDING);
@@ -164,7 +164,7 @@ HAL_CAN_ActivateNotification(&hcan, CAN_IT_RX_FIFO0_MSG_PENDING);
 
 ---
 
-### 8?? `HAL_CAN_RxFifo0MsgPendingCallback`
+### 8?  `HAL_CAN_RxFifo0MsgPendingCallback`
 
 ```c
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
@@ -180,7 +180,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 
 ---
 
-### 9?? `HAL_CAN_TxMailbox0CompleteCallback`
+### 9?  `HAL_CAN_TxMailbox0CompleteCallback`
 
 ```c
 void HAL_CAN_TxMailbox0CompleteCallback(CAN_HandleTypeDef *hcan)
@@ -194,7 +194,7 @@ void HAL_CAN_TxMailbox0CompleteCallback(CAN_HandleTypeDef *hcan)
 
 ## 七、CAN 状态与错误处理
 
-### ? `HAL_CAN_GetState`
+### 10?  `HAL_CAN_GetState`
 
 ```c
 HAL_CAN_GetState(&hcan);
@@ -206,7 +206,7 @@ HAL_CAN_GetState(&hcan);
 
 ---
 
-### 1??1?? `HAL_CAN_ErrorCallback`
+### 11?  `HAL_CAN_ErrorCallback`
 
 ```c
 void HAL_CAN_ErrorCallback(CAN_HandleTypeDef *hcan)
@@ -220,10 +220,10 @@ void HAL_CAN_ErrorCallback(CAN_HandleTypeDef *hcan)
 
 ## 八、常见调试建议
 
-* ? 先确认 **波特率一致**
-* ? 至少两节点（CAN 无自发自收，除非回环模式）
-* ? 优先使用 **中断接收**
-* ? 过滤器先全开，稳定后再精确过滤
+* 12? 先确认 **波特率一致**
+* 13? 至少两节点（CAN 无自发自收，除非回环模式）
+* 14? 优先使用 **中断接收**
+* 15? 过滤器先全开，稳定后再精确过滤
 
 ---
 
@@ -240,15 +240,3 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 }
 ```
 
----
-
-## 十、适用场景
-
-* ? 电机控制（RM / DJI）
-* ? 机器人总线通信
-* ? 全国大学生电子设计竞赛
-* ? 工业现场总线学习
-
----
-
-> **建议**：配合逻辑分析仪或 CAN 分析仪一起调试，效率提升 10 倍。
