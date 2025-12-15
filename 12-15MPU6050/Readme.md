@@ -1,5 +1,9 @@
 # MPU6050_DMP 解算库的调用
 
+## 移植注意事项
+1.要修改 #include "stm32g4xx_hal.h"，对应的芯片型号
+2.要注意软件模拟IIC的引脚（oled和mpu6050）
+
 ## 引入库文件
 ```c
 #include "OLED.h"
