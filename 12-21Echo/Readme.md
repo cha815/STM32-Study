@@ -23,7 +23,7 @@
     HAL_GPIO_WritePin(Trig_GPIO_Port, Trig_Pin, GPIO_PIN_SET);
     HAL_Delay(1);
     HAL_GPIO_WritePin(Trig_GPIO_Port, Trig_Pin, GPIO_PIN_RESET);
-    //清空计数器
+    //清空计数器---中断有回环处理可以不清空
     __HAL_TIM_SET_COUNTER(&htim1, 0); 
     //延迟
     HAL_Delay(20); 
@@ -36,21 +36,39 @@
 ### 重定义捕获中断函数
 
 ``` c
+
+//定义变量
+#define SAMPLE_RATE 5
+uint16_t RISE_EDGE = 0;
+uint16_t FALL_EDGE = 0;
+uint16_t DISTANCE = 0;
+uint16_t avg_distance_cm = 0;
+
+float history_index[SAMPLE_RATE] = {0};  //样本缓存索引
+uint16_t buffer_index = 0;  //当前样本点存放索引
+
 // 捕获中断回调函数 + 简单平均值滤波
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
-{ avg_distance_cm = 0;
+{
   if(htim->Instance == TIM1 && htim->Channel == HAL_TIM_ACTIVE_CHANNEL_4)
   {
-    for (int i = 0; i < SAMPLE_RATE; i++)
+    // 读取捕获值
+      RISE_EDGE = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_3);
+      FALL_EDGE = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_4);
+    // 计算距离（防止回环）
+    if (RISE_EDGE < FALL_EDGE) {DISTANCE = FALL_EDGE - RISE_EDGE;}
+    else{DISTANCE = (0xFFFF - RISE_EDGE) + FALL_EDGE;}
+    //存放入缓存
+    history_index[buffer_index] = (float)DISTANCE * 0.034 /2;
+    buffer_index++;
+    if (buffer_index >= SAMPLE_RATE)buffer_index = 0; //10个是一个周期
+    //计算平均值
+     float sum = 0;
+    for (uint8_t i = 0; i < SAMPLE_RATE; i++)
     {
-      RISE_EDGE[i] = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_3);
-      FALL_EDGE[i] = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_4);
-      if (RISE_EDGE[i] < FALL_EDGE[i]){
-      DISTANCE[i] = FALL_EDGE[i] - RISE_EDGE[i];
-      distance_cm[i] = DISTANCE[i] * 0.034 / 2.0f;
-      avg_distance_cm += distance_cm[i];}
-      }
-    avg_distance_cm /= SAMPLE_RATE;
+      sum += history_index[i];
+    }
+    avg_distance_cm = sum / SAMPLE_RATE;
   }
 
   }

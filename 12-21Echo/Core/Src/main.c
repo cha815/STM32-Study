@@ -28,13 +28,14 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-#define SAMPLE_RATE 20
-uint32_t RISE_EDGE[SAMPLE_RATE] = {0};
-uint32_t FALL_EDGE[SAMPLE_RATE] = {0};
-uint32_t DISTANCE[SAMPLE_RATE] = {0};
-uint32_t distance_cm[SAMPLE_RATE] = {0};
-uint32_t sum_distance = 0;
-uint32_t avg_distance_cm = 0;
+#define SAMPLE_RATE 5
+uint16_t RISE_EDGE = 0;
+uint16_t FALL_EDGE = 0;
+uint16_t DISTANCE = 0;
+uint16_t avg_distance_cm = 0;
+
+float history_index[SAMPLE_RATE] = {0};  //Ñù±¾»º´æË÷Òı
+uint16_t buffer_index = 0;  //µ±Ç°Ñù±¾µã´æ·ÅË÷Òı
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -56,21 +57,28 @@ uint32_t avg_distance_cm = 0;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
-//ç®€å•å¹³å‡å€¼æ»¤æ³¢
+//¼òµ¥Æ½¾ùÖµÂË²¨
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
-{ avg_distance_cm = 0;
+{
   if(htim->Instance == TIM1 && htim->Channel == HAL_TIM_ACTIVE_CHANNEL_4)
   {
-    for (int i = 0; i < SAMPLE_RATE; i++)
+    // ¶ÁÈ¡²¶»ñÖµ
+      RISE_EDGE = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_3);
+      FALL_EDGE = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_4);
+    // ¼ÆËã¾àÀë£¨·ÀÖ¹»Ø»·£©
+    if (RISE_EDGE < FALL_EDGE) {DISTANCE = FALL_EDGE - RISE_EDGE;}
+    else{DISTANCE = (0xFFFF - RISE_EDGE) + FALL_EDGE;}
+    //´æ·ÅÈë»º´æ
+    history_index[buffer_index] = (float)DISTANCE * 0.034 /2;
+    buffer_index++;
+    if (buffer_index >= SAMPLE_RATE)buffer_index = 0; //10¸öÊÇÒ»¸öÖÜÆÚ
+    //¼ÆËãÆ½¾ùÖµ
+    float sum = 0;
+    for (uint8_t i = 0; i < SAMPLE_RATE; i++)
     {
-      RISE_EDGE[i] = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_3);
-      FALL_EDGE[i] = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_4);
-      if (RISE_EDGE[i] < FALL_EDGE[i]){
-      DISTANCE[i] = FALL_EDGE[i] - RISE_EDGE[i];
-      distance_cm[i] = DISTANCE[i] * 0.034 / 2.0f;
-      avg_distance_cm += distance_cm[i];}
-      }
-    avg_distance_cm /= SAMPLE_RATE;
+      sum += history_index[i];
+    }
+    avg_distance_cm = sum / SAMPLE_RATE;
   }
 
   }
@@ -113,10 +121,10 @@ int main(void)
   MX_GPIO_Init();
   MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
-  // åˆå§‹åŒ–OLED
+  // ³õÊ¼»¯OLED
   OLED_Init();
   OLED_Clear();
-  //å¼€å¯æ•è·é€šé“
+  //¿ªÆô²¶»ñÍ¨µÀ
   HAL_TIM_IC_Start(&htim1, TIM_CHANNEL_3);
   HAL_TIM_IC_Start_IT(&htim1, TIM_CHANNEL_4);
 
@@ -126,13 +134,13 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    //è§¦å‘Trigä¸‹é™æ²¿
+    //´¥·¢TrigÏÂ½µÑØ
     HAL_GPIO_WritePin(Trig_GPIO_Port, Trig_Pin, GPIO_PIN_SET);
     HAL_Delay(1);
     HAL_GPIO_WritePin(Trig_GPIO_Port, Trig_Pin, GPIO_PIN_RESET);
-    __HAL_TIM_SET_COUNTER(&htim1, 0); //æ¸…é›¶é˜²æ­¢å›ç¯
-    HAL_Delay(20); //ç­‰å¾…20ms
-    // æ˜¾ç¤ºè·ç¦»
+    // __HAL_TIM_SET_COUNTER(&htim1, 0); //ÇåÁã·ÀÖ¹»Ø»·
+    HAL_Delay(20); //µÈ´ı20ms
+    // ÏÔÊ¾¾àÀë
     OLED_ShowNum(0, 0, avg_distance_cm, 3, 8);
     OLED_ShowString(0, 16, "cm", 8);
     OLED_Update();
